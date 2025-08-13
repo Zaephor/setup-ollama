@@ -24,7 +24,7 @@ A specific version of the `ollama` binary can be installed:
 steps:
   - uses: zaephor/setup-ollama@main
     with:
-      version: 0.11.4
+      ollama_version: 0.11.4
 ```
 
 Or a remote ollama endpoint can be specified, and this will use the remote's version to obtain the matching binary.

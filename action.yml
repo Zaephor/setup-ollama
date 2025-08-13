@@ -6,7 +6,7 @@ inputs:
   ollama_endpoint:
     description: 'Ollama endpoint to check. ex: http://ollama:11434. Will setup matching version.'
     required: false
-  version:
+  ollama_version:
     description: 'Specific version to install. Ex: 0.11.4'
     required: false
 
@@ -27,9 +27,9 @@ runs:
       run: |
         VERSION=""
         SOURCE=""
-        if [[ -n "${{ inputs.version }}" ]]; then
+        if [[ -n "${{ inputs.ollama_version }}" ]]; then
           SOURCE="input"
-          VERSION=$(echo "${{ inputs.version }}" | tr -d '[A-z]' )
+          VERSION=$(echo "${{ inputs.ollama_version }}" | tr -d '[A-z]' )
         elif [[ -n "${{ inputs.ollama_endpoint }}" ]]; then
           SOURCE="ollama_endpoint"
           RESULT=$(curl -sL "${{ inputs.ollama_endpoint }}/api/version" | jq -r '.version' | sed 's@^v@@g')
