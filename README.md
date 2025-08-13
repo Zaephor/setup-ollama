@@ -35,3 +35,15 @@ steps:
     with:
       ollama_endpoint: http://ollama-host:11434
 ```
+
+And even further, if an endpoint is detected/provided and a list of models are provided, the action will pull them all
+```yaml
+steps:
+  - uses: zaephor/setup-ollama@main
+    with:
+      ollama_endpoint: http://ollama-host:11434
+      ollama_pull: |
+        qwen3:14b
+        qwen2.5-coder:14b
+        hf.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q4_K_M
+```

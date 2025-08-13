@@ -9,6 +9,9 @@ inputs:
   ollama_version:
     description: 'Specific version to install. Ex: 0.11.4'
     required: false
+  ollama_pull:
+    description: 'CSV list of models to ensure have been pulled'
+    required: false
 
 outputs:
   version_installed:
@@ -17,6 +20,9 @@ outputs:
   version_source:
     description: 'Where version was determined'
     value: ${{ steps.vars.outputs.version_source }}
+  ollama_endpoint:
+    description: 'Detected ollama endpoint'
+    value: ${{ steps.vars.outputs.ollama_endpoint }}
 
 runs:
   using: 'composite'
@@ -61,6 +67,7 @@ runs:
         fi
         echo "ollama_version=${VERSION}" > $GITHUB_OUTPUT
         echo "version_source=${SOURCE}" > $GITHUB_OUTPUT
+        echo "ollama_endpoint=${OLLAMA_HOST:-${{ inputs.ollama_version }}}" > $GITHUB_OUTPUT
         echo "Ollama version ${VERSION} was detected from ${SOURCE}"
     - name: "Install version"
       uses: zaephor/setup-bin@main
@@ -70,3 +77,13 @@ runs:
         version: '${{ steps.vars.outputs.ollama_version }}'
         subPath: bin
 
+    - name: Pulling requested models
+      if: inputs.ollama_pull != ''
+      shell: bash
+      run: |
+        echo "Pulling entries:"
+        while IFS= read -r line; do
+          echo "::group::Pulling ${line}"
+          ollama pull ${line}
+          echo "::endgroup::"
+        done <<< "${{ inputs.ollama_pull }}"
