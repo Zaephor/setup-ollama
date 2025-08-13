@@ -1,0 +1,72 @@
+---
+name: Setup ollama
+description: Installs and caches the ollama binary
+
+inputs:
+  ollama_endpoint:
+    description: 'Ollama endpoint to check. ex: http://ollama:11434. Will setup matching version.'
+    required: false
+  version:
+    description: 'Specific version to install. Ex: 0.11.4'
+    required: false
+
+outputs:
+  version_installed:
+    description: 'Version installed'
+    value: ${{ steps.vars.outputs.ollama_version }}
+  version_source:
+    description: 'Where version was determined'
+    value: ${{ steps.vars.outputs.version_source }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check for version
+      id: vars
+      shell: bash
+      run: |
+        VERSION=""
+        SOURCE=""
+        if [[ -n "${{ inputs.version }}" ]]; then
+          SOURCE="input"
+          VERSION=$(echo "${{ inputs.version }}" | tr -d '[A-z]' )
+        elif [[ -n "${{ inputs.ollama_endpoint }}" ]]; then
+          SOURCE="ollama_endpoint"
+          RESULT=$(curl -sL "${{ inputs.ollama_endpoint }}/api/version" | jq -r '.version' | sed 's@^v@@g')
+          if [[ -n "${RESULT}" && "${RESULT}" != "null" ]]; then
+            VERSION=${RESULT}
+          else
+            echo "::error::Could not determine ollama version at ${{ inputs.ollama_endpoint }}"
+            exit 1
+          fi
+        elif [[ -n "${OLLAMA_HOST}" ]]; then
+          SOURCE="ollama_envvar"
+          RESULT=$(curl -sL "${OLLAMA_HOST}/api/version" | jq -r '.version' | sed 's@^v@@g')
+          if [[ -n "${RESULT}" && "${RESULT}" != "null" ]]; then
+            VERSION=${RESULT}
+          else
+            echo "::error::Could not determine ollama version at ${OLLAMA_HOST}"
+            exit 1
+          fi
+        else
+          SOURCE="github"
+          GITHUB_REPO="ollama/ollama"
+          RESULT=$(curl -sL "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | jq -r ".tag_name" | sed 's@^v@@g')
+          if [[ -n "${RESULT}" && "${RESULT}" != "null" ]]; then
+            VERSION=${RESULT}
+          else
+            echo "::error::Could not determine ollama version from Github"
+            exit 1
+          fi
+        fi
+        echo "ollama_version=${VERSION}" > $GITHUB_OUTPUT
+        echo "version_source=${SOURCE}" > $GITHUB_OUTPUT
+        echo "Ollama version ${VERSION} was detected from ${SOURCE}"
+    - name: "Install version"
+      uses: zaephor/setup-bin@main
+      with:
+        uri: 'https://github.com/ollama/ollama/releases/download/v${{ steps.vars.outputs.ollama_version }}/ollama-linux-amd64.tgz'
+        name: 'ollama'
+        version: '${{ steps.vars.outputs.ollama_version }}'
+        subPath: bin
+
