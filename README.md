@@ -2,9 +2,12 @@
 
 ## About
 
-This GitHub Action sets up Ollama on a runner. It downloads and installs Ollama, making it available for use in your workflows.
+This GitHub Action sets up Ollama on a runner. It downloads and installs the Ollama binary, making it available for use in your workflows.
 
 It supports installing the latest version, a specific version, or a version matching an ollama endpoint.
+
+> [!WARNING]
+> This action is meant to provide the `ollama` binary itself, it does not explicitly install or start any ollama services.
 
 ## Usage
 
