@@ -65,9 +65,9 @@ runs:
             exit 1
           fi
         fi
-        echo "ollama_version=${VERSION}" > $GITHUB_OUTPUT
-        echo "version_source=${SOURCE}" > $GITHUB_OUTPUT
-        echo "ollama_endpoint=${OLLAMA_HOST:-${{ inputs.ollama_version }}}" > $GITHUB_OUTPUT
+        echo "ollama_version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "version_source=${SOURCE}" >> $GITHUB_OUTPUT
+        echo "ollama_endpoint=${OLLAMA_HOST:-${{ inputs.ollama_version }}}" >> $GITHUB_OUTPUT
         echo "Ollama version ${VERSION} was detected from ${SOURCE}"
     - name: "Install version"
       uses: zaephor/setup-bin@main
