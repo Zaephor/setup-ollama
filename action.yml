@@ -68,11 +68,12 @@ runs:
         echo "ollama_version=${VERSION}" >> $GITHUB_OUTPUT
         echo "version_source=${SOURCE}" >> $GITHUB_OUTPUT
         echo "ollama_endpoint=${OLLAMA_HOST:-${{ inputs.ollama_version }}}" >> $GITHUB_OUTPUT
+        echo "arch=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/;s/arm64/arm64/')" >> $GITHUB_OUTPUT
         echo "Ollama version ${VERSION} was detected from ${SOURCE}"
     - name: "Install version"
       uses: zaephor/setup-bin@main
       with:
-        uri: 'https://github.com/ollama/ollama/releases/download/v${{ steps.vars.outputs.ollama_version }}/ollama-linux-amd64.tgz'
+        uri: 'https://github.com/ollama/ollama/releases/download/v${{ steps.vars.outputs.ollama_version }}/ollama-linux-${{ steps.vars.outputs.arch }}.tgz'
         name: 'ollama'
         version: '${{ steps.vars.outputs.ollama_version }}'
         subPath: bin
